@@ -1,5 +1,6 @@
 import TransactionsRepository, { TransactionType, Balance } from '../repositories/TransactionsRepository';
 import Transaction from '../models/Transaction';
+import { getCustomRepository } from 'typeorm';
 
 interface TransactionStatement {
   transactions: Transaction[];
@@ -8,13 +9,13 @@ interface TransactionStatement {
 
 class GetTransactionStatementService {
 
-  constructor(private transactionsRepository: TransactionsRepository) {}
+  public async execute(): Promise<TransactionStatement> {
 
-  public execute(): TransactionStatement {
+    const transactionsRepository = getCustomRepository(TransactionsRepository)
 
-    const transactions = this.transactionsRepository.all();
+    const transactions = await transactionsRepository.find();
 
-    const balance = this.transactionsRepository.getBalance();
+    const balance = await transactionsRepository.getBalance();
 
     const transactionStatement = {
       transactions,

@@ -6,13 +6,11 @@ import GetTransactionStatementService from '../services/GetTransactionsStatement
 
 const transactionRouter = Router();
 
-const transactionsRepository = new TransactionsRepository();
-
-transactionRouter.get('/', (request, response) => {
+transactionRouter.get('/', async (request, response) => {
   try {
-    const transactionStatementService = new GetTransactionStatementService(transactionsRepository);
+    const transactionStatementService = new GetTransactionStatementService();
 
-    const transactionStatement = transactionStatementService.execute();
+    const transactionStatement = await transactionStatementService.execute();
 
     return response.json(transactionStatement);
 
@@ -21,13 +19,13 @@ transactionRouter.get('/', (request, response) => {
   }
 });
 
-transactionRouter.post('/', (request, response) => {
+transactionRouter.post('/', async (request, response) => {
   try {
     const { title, value, type } = request.body;
 
-    const createTransactionService = new CreateTransactionService(transactionsRepository);
+    const createTransactionService = new CreateTransactionService();
 
-    const createTransaction = createTransactionService.execute({ title, value, type });
+    const createTransaction = await createTransactionService.execute({ title, value, type });
 
     return response.json(createTransaction);
 

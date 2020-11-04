@@ -1,4 +1,5 @@
 import Transaction from '../models/Transaction';
+import { EntityRepository, Repository } from 'typeorm'
 
 export interface Balance {
   income: number;
@@ -13,22 +14,16 @@ export enum TransactionType {
   outcome = 'outcome'
 }
 
-class TransactionsRepository {
-  private transactions: Transaction[];
+@EntityRepository(Transaction)
+class TransactionsRepository extends Repository<Transaction> {
 
-  constructor() {
-    this.transactions = [];
-  }
-
-  public all(): Transaction[] {
-    return this.transactions;
-  }
-
-  public getBalance(): Balance {
+  public async getBalance(): Promise<Balance> {
     let income = 0;
     let outcome = 0;
 
-    return this.transactions.reduce((accumulate, current) => {
+    const transactions = await this.find();
+
+    return transactions.reduce((accumulate, current) => {
 
       (current.type === TransactionType.income)
         ? income += current.value
@@ -39,14 +34,6 @@ class TransactionsRepository {
       return { income, outcome, total } as Balance;
 
     }, { income: 0, outcome: 0, total: 0} );
-  }
-
-  public create(transactionDTO: CreateTransactionDTO): Transaction {
-    const transaction = new Transaction(transactionDTO);
-
-    this.transactions.push(transaction);
-
-    return transaction;
   }
 }
 
